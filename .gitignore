@@ -1,0 +1,21 @@
+# Maven / Java
+target/
+*.class
+*.log
+*.jar
+*.war
+*.iml
+
+# IntelliJ / VSCode
+.idea/
+*.iws
+*.ipr
+*.iml
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
