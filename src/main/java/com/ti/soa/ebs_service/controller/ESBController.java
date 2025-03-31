@@ -23,17 +23,24 @@ public class ESBController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
-        String response = webClient.post()
-                // .uri("http://localhost:3000/api/users/createuser")
-                // .uri("http://users:3001/api/users/createuser")
-                .uri("http://users.railway.internal:3001/api/users/login")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .bodyValue(user)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return ResponseEntity.ok(response);
+        try {
+            String response = webClient.post()
+                    .uri("http://users.railway.internal:3001/api/users/login")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .bodyValue(user)
+                    .retrieve()
+                    .onStatus(HttpStatus::isError, clientResponse -> clientResponse.bodyToMono(String.class)
+                        .map(body -> new RuntimeException("Error del backend: " + body)))
+                    .bodyToMono(String.class)
+                    .block();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("❌ Error en loginUser: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al iniciar sesión: " + e.getMessage());
+        }
     }
+
 
 
     @GetMapping("/users")
